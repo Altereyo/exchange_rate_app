@@ -16,20 +16,10 @@ class AppEffects {
       end: 1,
       duration: _greetsDuration,
     ),
-    const ThenEffect(delay: Duration(seconds: 2)),
-    const MoveEffect(
-      begin: Offset(0, 0),
-      end: Offset(0, _greetsYOffset),
-      duration: _greetsDuration,
-    ),
-    const FadeEffect(
-      begin: 1,
-      end: 0,
-      duration: _greetsDuration,
-    ),
   ];
 
   static List<Effect> showSecondGreet (Function(bool) callback) => <Effect>[
+    const ThenEffect(delay: Duration(seconds: 1)),
     const MoveEffect(
       begin: Offset(0, _greetsYOffset),
       end: Offset(0, 0),

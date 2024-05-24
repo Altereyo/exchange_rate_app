@@ -46,17 +46,30 @@ class _TutorialScreenState extends State<TutorialScreen>
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
-          child: Stack(
+          child: Column(
             children: [
-              Positioned(
-                top: 70,
-                left: MediaQuery.of(context).size.width * 0.25,
-                child: RotatedLogo(minified: animationCompleted),
-              ),
+              RotatedLogo(minified: animationCompleted),
               Padding(
-                padding: const EdgeInsets.only(top: 220),
+                padding: const EdgeInsets.only(top: 70),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Animate(
+                    effects: AppEffects.showFirstGreet,
+                    onComplete: (controller) {
+                      animation2Controller?.forward();
+                    },
+                    child: Text(
+                      'Здравствуйте, ${widget.username}!',
+                      style: AppStyles.bigFatTitle,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Animate(
                       autoPlay: false,
@@ -65,106 +78,105 @@ class _TutorialScreenState extends State<TutorialScreen>
                         animationCompleted = true;
                         setState(() {});
                       }),
-                      child: Text(
-                        'Выберите избранные валюты (по желанию):',
-                        style: AppStyles.bigFatTitle,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Выберите любимые валюты (по желанию):',
+                          style: AppStyles.bigFatTitle.copyWith(fontSize: 26),
+                        ),
                       ),
                     ),
                     Expanded(
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 500),
                         height: animationCompleted ? null : 0,
-                        child: !animationCompleted ? Container() : Column(
-                          children: [
-                            SizedBox(
-                              height: 250,
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                child: ChipsChoice<CurrencyEntity>.multiple(
-                                  key: UniqueKey(),
-                                  wrapped: true,
-                                  value: choices,
-                                  onChanged: (val) =>
-                                      setState(() => choices = val),
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  padding: EdgeInsets.zero,
-                                  choiceItems: C2Choice.listFrom<CurrencyEntity, CurrencyEntity>(
-                                    source: currencyStore.rates,
-                                    value: (i, v) => v,
-                                    label: (i, v) => v.symbol,
+                        child: !animationCompleted
+                            ? Container()
+                            : Column(
+                                children: [
+                                  Expanded(
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.vertical,
+                                      child:
+                                          ChipsChoice<CurrencyEntity>.multiple(
+                                        key: UniqueKey(),
+                                        wrapped: true,
+                                        value: choices,
+                                        onChanged: (val) =>
+                                            setState(() => choices = val),
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        padding: EdgeInsets.zero,
+                                        choiceItems: C2Choice.listFrom<
+                                            CurrencyEntity, CurrencyEntity>(
+                                          source: currencyStore.rates,
+                                          value: (i, v) => v,
+                                          label: (i, v) => v.symbol,
+                                        ),
+                                        choiceBuilder: (item, i) {
+                                          return InkWell(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            onTap: () {
+                                              item.select!(!item.selected);
+                                            },
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 5,
+                                                      horizontal: 8),
+                                              decoration: BoxDecoration(
+                                                color: item.selected
+                                                    ? Colors.black12
+                                                    : Colors.transparent,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: Text(
+                                                item.value.symbol,
+                                                style: GoogleFonts.manrope(
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ).animate().shimmer(
+                                          duration: const Duration(seconds: 1),
+                                        ),
                                   ),
-                                  choiceBuilder: (item, i) {
-                                    return InkWell(
+                                  const SizedBox(height: 20),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: InkWell(
                                       borderRadius: BorderRadius.circular(8),
-                                      onTap: () {
-                                        item.select!(!item.selected);
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 5, horizontal: 8),
-                                        decoration: BoxDecoration(
-                                          color: item.selected
-                                              ? Colors.black12
-                                              : Colors.transparent,
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: Text(
-                                          item.value.symbol,
-                                          style: GoogleFonts.manrope(
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                      onTap: onTapNext,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              choices.isEmpty
+                                                  ? 'Пропустить'
+                                                  : 'Далее',
+                                              style: AppStyles.bigFatTitle
+                                                  .copyWith(
+                                                      fontSize: 18, height: 1),
+                                            ),
+                                            const SizedBox(width: 5),
+                                            const Icon(Icons.chevron_right),
+                                          ],
                                         ),
                                       ),
-                                    );
-                                  },
-                                ),
-                              )
-                                  .animate()
-                                  .shimmer(duration: const Duration(seconds: 1)),
-                            ),
-                            const Spacer(),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(8),
-                                onTap: onTapNext,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        choices.isEmpty
-                                            ? 'Пропустить'
-                                            : 'Далее',
-                                        style: AppStyles.bigFatTitle
-                                            .copyWith(fontSize: 18, height: 1),
-                                      ),
-                                      const SizedBox(width: 5),
-                                      const Icon(Icons.chevron_right),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
                       ),
                     ),
                   ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 220),
-                child: Animate(
-                  effects: AppEffects.showFirstGreet,
-                  onComplete: (controller) {
-                    animation2Controller?.forward();
-                  },
-                  child: Text(
-                    'Привет, ${widget.username}',
-                    style: AppStyles.bigFatTitle,
-                  ),
                 ),
               ),
             ],
@@ -183,19 +195,18 @@ class RotatedLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: AnimatedScale(
-        scale: minified ? 0.8 : 1,
-        duration: const Duration(milliseconds: 500),
+      child: RotatedBox(
+        quarterTurns: 1,
         child: Stack(
           alignment: Alignment.topCenter,
           children: [
             Text(
-              'PERFECTPANEL',
-              style: GoogleFonts.manrope(
+              'PERFECTPANEL ',
+              style: GoogleFonts.majorMonoDisplay(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
                 backgroundColor: Colors.white,
-                height: 1,
+                height: 0.9,
               ),
             )
                 .animate(
@@ -209,8 +220,8 @@ class RotatedLogo extends StatelessWidget {
             Transform.rotate(
               angle: pi * 0.5,
               child: Text(
-                'PERFECTPANEL',
-                style: GoogleFonts.manrope(
+                'PERFECTPANEL ',
+                style: GoogleFonts.majorMonoDisplay(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   backgroundColor: Colors.white,
