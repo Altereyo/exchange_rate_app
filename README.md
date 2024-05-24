@@ -1,16 +1,38 @@
-# exchange_rate_app
+# Exchange Rate app
 
-A new Flutter project.
+Exchange Rate app - приложение, написанное на Flutter. В нём можно смотреть актуальные курсы валют и конвертировать их. Приложение включает в себя авторизацию, добавление валют в избранное, поддержку автоматического обновления курсов валют каждые 30 секунд.
 
-## Getting Started
+## Функциональные возможности
+- Авторизация пользователя (логин: demo, пароль: demo)
+- Добавление валют в избранное
+- Фильтрация валют по алфавиту и курсу
+- Просмотр актуальных курсов валют
+- Конвертация валют с учетом комиссии 3%
+- Автоматическое обновление курсов каждые 30 секунд
+- Возможность принудительного обновления курсов валют
 
-This project is a starting point for a Flutter application.
+## Версии
+Flutter - 3.19.5
+Dart - 3.3.3
 
-A few resources to get you started if this is your first Flutter project:
+## Установка проекта
+### Шаг 1: Скачайте репозиторий
+```sh
+git clone https://github.com/Altereyo/exchange_rate_app.git
+cd exchange_rate_app
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Шаг 2: Установка зависимостей
+```sh
+flutter pub get
+```
+
+### Шаг 3: Запуск приложения
+
+```sh
+flutter run
+```
+
+## Тестирование
+В папке tests/ есть 2 файла - 
