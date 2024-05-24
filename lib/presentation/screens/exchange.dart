@@ -1,4 +1,8 @@
+import 'dart:math';
+
+import 'package:decimal/decimal.dart';
 import 'package:exchange_rate_app/internal/di.dart';
+import 'package:exchange_rate_app/internal/enum/sort_by.dart';
 import 'package:exchange_rate_app/presentation/shared/app_colors.dart';
 import 'package:exchange_rate_app/presentation/shared/app_styles.dart';
 import 'package:exchange_rate_app/presentation/stores/currency_store.dart';
@@ -18,29 +22,42 @@ class _ConversionScreenState extends State<ConversionScreen> {
 
   String _fromCurrency = 'BTC';
   String _toCurrency = 'RUB';
-  double _withoutComission = 0.0;
-
+  String _withoutComission = '';
 
   void _convert() {
     if (_amountController.text.isEmpty) return;
 
-    final amount = double.tryParse(_amountController.text);
+    final amountText = _amountController.text.replaceAll(',', '');
+    final amount = Decimal.tryParse(amountText);
     if (amount == null) return;
 
-    final fromRate = store.rates.firstWhere((rate) => rate.symbol == _fromCurrency).rateUsd;
-    final toRate = store.rates.firstWhere((rate) => rate.symbol == _toCurrency).rateUsd;
+    final fromRate = Decimal.parse(store.rates.firstWhere((rate) => rate.symbol == _fromCurrency).rateUsd.toString());
+    final toRate = Decimal.parse(store.rates.firstWhere((rate) => rate.symbol == _toCurrency).rateUsd.toString());
 
-    if (fromRate == 0 || toRate == 0) return;
+    if (fromRate == Decimal.zero || toRate == Decimal.zero) return;
 
-    final result = (amount * fromRate / toRate);
-    final resultWithCommission = result * 1.03;
+    final result = (amount * fromRate) / toRate;
+    final resultWithCommission = result.toDouble() * 1.03;
+
+    final isFiat = _toCurrency == 'USD' || _toCurrency == 'EUR' || _toCurrency == 'RUB'; // Add other FIAT currencies as needed
+
+    final formattedResult = isFiat
+        ? ((resultWithCommission.toDouble() * 100).floor() / 100).toStringAsFixed(2)
+        : resultWithCommission.toDouble().toStringAsFixed(18);
 
     setState(() {
-      _withoutComission = result;
-      _resultController.text = resultWithCommission.toString();
+      _withoutComission = result.toDouble().toString();
+      _resultController.text = formattedResult;
     });
   }
 
+  @override
+  void initState() {
+    getIt.get<CurrencyStore>()
+      ..sortBy = SortBy.alphabetAsc
+      ..sortRates();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
 
@@ -59,7 +76,14 @@ class _ConversionScreenState extends State<ConversionScreen> {
                   child: AppInput(
                     controller: _amountController,
                     keyboardType: TextInputType.number,
-                    onChanged: (v) => _convert(),
+                    onChanged: (v) {
+                      if (v.isEmpty) {
+                        setState(() {
+                          _resultController.text = '';
+                        });
+                      }
+                      _convert();
+                    },
                     label: 'У меня есть',
                   ),
                 ),
@@ -69,8 +93,9 @@ class _ConversionScreenState extends State<ConversionScreen> {
                   child: DropdownButton<String>(
                     value: _fromCurrency,
                     onChanged: (value) {
+                      if (value! == _toCurrency) return;
                       setState(() {
-                        _fromCurrency = value!;
+                        _fromCurrency = value;
                         _convert();
                       });
                     },
@@ -103,8 +128,9 @@ class _ConversionScreenState extends State<ConversionScreen> {
                   child: DropdownButton<String>(
                     value: _toCurrency,
                     onChanged: (value) {
+                      if (value! == _fromCurrency) return;
                       setState(() {
-                        _toCurrency = value!;
+                        _toCurrency = value;
                         _convert();
                       });
                     },
