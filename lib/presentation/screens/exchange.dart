@@ -10,50 +10,54 @@ import 'package:exchange_rate_app/presentation/widgets/input.dart';
 import 'package:flutter/material.dart';
 
 class ConversionScreen extends StatefulWidget {
+  final CurrencyStore? currencyStore;
+
+  const ConversionScreen({super.key, this.currencyStore});
   @override
-  _ConversionScreenState createState() => _ConversionScreenState();
+  ConversionScreenState createState() => ConversionScreenState();
 }
 
-class _ConversionScreenState extends State<ConversionScreen> {
+class ConversionScreenState extends State<ConversionScreen> {
 
-  final store = getIt.get<CurrencyStore>();
-  final TextEditingController _amountController = TextEditingController();
-  final TextEditingController _resultController = TextEditingController();
+  CurrencyStore store = getIt.get<CurrencyStore>();
+  final TextEditingController amountController = TextEditingController();
+  final TextEditingController resultController = TextEditingController();
 
-  String _fromCurrency = 'BTC';
-  String _toCurrency = 'RUB';
-  String _withoutComission = '';
+  String fromCurrency = 'BTC';
+  String toCurrency = 'RUB';
+  String withoutComission = '';
 
-  void _convert() {
-    if (_amountController.text.isEmpty) return;
+  void convert(CurrencyStore _store) {
+    if (amountController.text.isEmpty) return;
 
-    final amountText = _amountController.text.replaceAll(',', '');
+    final amountText = amountController.text.replaceAll(',', '');
     final amount = Decimal.tryParse(amountText);
     if (amount == null) return;
 
-    final fromRate = Decimal.parse(store.rates.firstWhere((rate) => rate.symbol == _fromCurrency).rateUsd.toString());
-    final toRate = Decimal.parse(store.rates.firstWhere((rate) => rate.symbol == _toCurrency).rateUsd.toString());
+    final fromRate = Decimal.parse(_store.rates.firstWhere((rate) => rate.symbol == fromCurrency).rateUsd.toString());
+    final toRate = Decimal.parse(_store.rates.firstWhere((rate) => rate.symbol == toCurrency).rateUsd.toString());
 
     if (fromRate == Decimal.zero || toRate == Decimal.zero) return;
 
     final result = (amount * fromRate) / toRate;
     final resultWithCommission = result.toDouble() * 1.03;
 
-    final isFiat = _toCurrency == 'USD' || _toCurrency == 'EUR' || _toCurrency == 'RUB'; // Add other FIAT currencies as needed
+    final isFiat = toCurrency == 'USD' || toCurrency == 'EUR' || toCurrency == 'RUB'; // Add other FIAT currencies as needed
 
     final formattedResult = isFiat
         ? ((resultWithCommission.toDouble() * 100).floor() / 100).toStringAsFixed(2)
         : resultWithCommission.toDouble().toStringAsFixed(18);
 
     setState(() {
-      _withoutComission = result.toDouble().toString();
-      _resultController.text = formattedResult;
+      withoutComission = result.toDouble().toString();
+      resultController.text = formattedResult;
     });
   }
 
   @override
   void initState() {
-    getIt.get<CurrencyStore>()
+    if (widget.currencyStore != null) store = widget.currencyStore!;
+    store
       ..sortBy = SortBy.alphabetAsc
       ..sortRates();
     super.initState();
@@ -74,15 +78,15 @@ class _ConversionScreenState extends State<ConversionScreen> {
                 Flexible(
                   flex: 2,
                   child: AppInput(
-                    controller: _amountController,
+                    controller: amountController,
                     keyboardType: TextInputType.number,
                     onChanged: (v) {
                       if (v.isEmpty) {
                         setState(() {
-                          _resultController.text = '';
+                          resultController.text = '';
                         });
                       }
-                      _convert();
+                      convert(store);
                     },
                     label: 'У меня есть',
                   ),
@@ -91,12 +95,13 @@ class _ConversionScreenState extends State<ConversionScreen> {
                 Flexible(
                   flex: 1,
                   child: DropdownButton<String>(
-                    value: _fromCurrency,
+                    key: ValueKey('currency_from'),
+                    value: fromCurrency,
                     onChanged: (value) {
-                      if (value! == _toCurrency) return;
+                      if (value! == toCurrency) return;
                       setState(() {
-                        _fromCurrency = value;
-                        _convert();
+                        fromCurrency = value;
+                        convert(store);
                       });
                     },
                     items: store.rates.map((rate) {
@@ -116,7 +121,7 @@ class _ConversionScreenState extends State<ConversionScreen> {
                 Flexible(
                   flex: 2,
                   child: AppInput(
-                    controller: _resultController,
+                    controller: resultController,
                     readOnly: true,
                     keyboardType: TextInputType.number,
                     label: 'Хочу приобрести',
@@ -126,12 +131,13 @@ class _ConversionScreenState extends State<ConversionScreen> {
                 Flexible(
                   flex: 1,
                   child: DropdownButton<String>(
-                    value: _toCurrency,
+                    key: ValueKey('currency_to'),
+                    value: toCurrency,
                     onChanged: (value) {
-                      if (value! == _fromCurrency) return;
+                      if (value! == fromCurrency) return;
                       setState(() {
-                        _toCurrency = value;
-                        _convert();
+                        toCurrency = value;
+                        convert(store);
                       });
                     },
                     items: store.rates.map((rate) {
@@ -145,7 +151,7 @@ class _ConversionScreenState extends State<ConversionScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            if (_amountController.text.isNotEmpty) Container(
+            if (amountController.text.isNotEmpty) Container(
               padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
@@ -158,7 +164,8 @@ class _ConversionScreenState extends State<ConversionScreen> {
                     style: AppStyles.smallFatText.copyWith(fontWeight: FontWeight.w300),
                   ),
                   Text(
-                    _withoutComission.toString(),
+                    withoutComission.toString(),
+                    key: const ValueKey('result_comission'),
                     style: AppStyles.smallFatText,
                   ),
                 ],
