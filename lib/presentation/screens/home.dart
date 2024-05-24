@@ -45,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.refresh),
           ),
           PopupMenuButton<SortBy>(
+            tooltip: '',
             icon: const Icon(Icons.filter_list),
             initialValue: currencyStore.sortBy,
             onSelected: (SortBy item) async {
