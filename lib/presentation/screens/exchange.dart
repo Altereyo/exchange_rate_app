@@ -40,17 +40,19 @@ class ConversionScreenState extends State<ConversionScreen> {
     if (fromRate == Decimal.zero || toRate == Decimal.zero) return;
 
     final result = (amount * fromRate) / toRate;
-    final resultWithCommission = result.toDouble() * 1.03;
 
     final isFiat = toCurrency == 'USD' || toCurrency == 'EUR' || toCurrency == 'RUB'; // Add other FIAT currencies as needed
 
     final formattedResult = isFiat
-        ? ((resultWithCommission.toDouble() * 100).floor() / 100).toStringAsFixed(2)
-        : resultWithCommission.toDouble().toStringAsFixed(18);
+        ? ((result.toDouble() * 100).floor() / 100).toStringAsFixed(2)
+        : result.toDouble().toStringAsFixed(18);
 
+    final formattedResultWithComission = isFiat
+        ? ((result.toDouble() * 100).floor() / 100 * 1.03).toStringAsFixed(2)
+        : (result.toDouble() * 1.03).toStringAsFixed(18);
     setState(() {
-      withoutComission = result.toDouble().toString();
-      resultController.text = formattedResult;
+      withoutComission = formattedResult;
+      resultController.text = formattedResultWithComission;
     });
   }
 
