@@ -40,6 +40,14 @@ mixin _$CurrencyStore on _CurrencyStore, Store {
     });
   }
 
+  late final _$sortRatesAsyncAction =
+      AsyncAction('_CurrencyStore.sortRates', context: context);
+
+  @override
+  Future<void> sortRates() {
+    return _$sortRatesAsyncAction.run(() => super.sortRates());
+  }
+
   late final _$getRatesAsyncAction =
       AsyncAction('_CurrencyStore.getRates', context: context);
 

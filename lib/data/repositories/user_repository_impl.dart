@@ -43,7 +43,8 @@ class UserRepositoryImpl implements UserRepository {
 
   @override
   Future<List<CurrencyEntity>> getFavorites() async {
-    String json = await LocalStorageService.getFavorites;
+    String? json = await LocalStorageService.getFavorites;
+    if (json == null) return [];
     Iterable decodedJson = jsonDecode(json);
     List<CurrencyEntity> favorites = List<CurrencyEntity>.from(decodedJson.map((model) {
       model = model.replaceAll('{', '{"');
