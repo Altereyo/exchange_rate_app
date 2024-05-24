@@ -1,6 +1,6 @@
 {
-    "name": "exchange_rate_app",
-    "short_name": "exchange_rate_app",
+    "name": "PerfectPanel task",
+    "short_name": "Exchange app",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
