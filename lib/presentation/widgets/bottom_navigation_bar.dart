@@ -11,26 +11,27 @@ class AppBottomBar extends StatefulWidget {
 }
 
 class _AppBottomBarState extends State<AppBottomBar> {
-  int currentIndex = 1;
+  int currentIndex = 0;
   @override
   Widget build(BuildContext context) {
     final currentPage = GoRouter.of(context).location;
 
     return BottomNavigationBar(
-      selectedLabelStyle: GoogleFonts.manrope(fontWeight: FontWeight.w600),
+      selectedLabelStyle: GoogleFonts.manrope(fontWeight: FontWeight.w600, color: Colors.black),
       unselectedLabelStyle: GoogleFonts.manrope(),
+      fixedColor: Colors.black,
       currentIndex: currentIndex,
       items: [
         BottomNavigationBarItem(
-          icon: Icon(Icons.home, color: currentPage == '/home' ? AppColors.main : AppColors.grey,),
+          icon: Icon(Icons.home, color: currentPage == '/home' ? Colors.black : AppColors.grey,),
           label: 'Главная',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.swap_horiz, color: currentPage == '/exchange' ? AppColors.main : AppColors.grey,),
+          icon: Icon(Icons.swap_horiz, color: currentPage == '/exchange' ? Colors.black : AppColors.grey,),
           label: 'Конвертер',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.supervised_user_circle, color: currentPage == '/user' ? AppColors.main : AppColors.grey,),
+          icon: Icon(Icons.supervised_user_circle, color: currentPage == '/user' ? Colors.black : AppColors.grey,),
           label: 'Профиль',
         ),
       ],
