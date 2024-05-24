@@ -6,7 +6,9 @@ class AppInput extends StatelessWidget {
   AppInput({
     super.key,
     this.controller,
+    this.focusNode,
     this.onChanged,
+    this.onSubmitted,
     required this.label,
     this.obscureText = false,
     this.readOnly = false,
@@ -14,7 +16,9 @@ class AppInput extends StatelessWidget {
   });
 
   final TextEditingController? controller;
+  final FocusNode? focusNode;
   final Function(String)? onChanged;
+  final Function(String)? onSubmitted;
   final String label;
   final bool obscureText;
   final bool readOnly;
@@ -39,13 +43,16 @@ class AppInput extends StatelessWidget {
         ),
         TextField(
           controller: controller,
+          focusNode: focusNode,
           onChanged: onChanged,
+          onSubmitted: onSubmitted,
           obscureText: obscureText,
           keyboardType: keyboardType,
           readOnly: readOnly,
           cursorColor: AppColors.grey,
           style: AppStyles.inputText,
           decoration: InputDecoration(
+            contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
             border: border,
             focusedBorder: border,
             enabledBorder: border,

@@ -12,6 +12,9 @@ class AuthScreen extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  final FocusNode usernameFocus = FocusNode();
+  final FocusNode passwordFocus = FocusNode();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,13 +31,20 @@ class AuthScreen extends StatelessWidget {
             const SizedBox(height: 50),
             AppInput(
               controller: _usernameController,
+              focusNode: usernameFocus,
               label: 'Имя пользователя',
+              onSubmitted: (v) {
+                usernameFocus.unfocus();
+                passwordFocus.requestFocus();
+              },
             ),
             const SizedBox(height: 10),
             AppInput(
               controller: _passwordController,
+              focusNode: passwordFocus,
               label: 'Пароль',
               obscureText: true,
+              onSubmitted: (v) => passwordFocus.unfocus(),
             ),
             const SizedBox(height: 20),
             Align(

@@ -17,10 +17,7 @@ abstract class _AuthStore with Store {
   Future<void> login(BuildContext context, String userName, String secret) async {
     final result = await _userRepository.login(userName, secret);
     if (result && context.mounted) {
-      print('GAVNO');
-      print(userName);
       username = userName;
-      print(username);
       context.go('/tutorial', extra: userName);
     }
   }
